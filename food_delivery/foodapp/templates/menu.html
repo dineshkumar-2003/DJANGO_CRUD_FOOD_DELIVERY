@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        async function fetchRestautrants(){
+            const response=await fetch("http://127.0.0.1:8000/restaurants/");
+            const data=await response.json();
+            const restaurantMap={};
+            data.forEach(restaurant=>{
+                restaurantMap[restaurant.id]=restaurant.name;
+            });
+            return restaurantMap;
+        }
+        async function fetchData(endpoint, tableId) {
+            const restaurantMap=await fetchRestautrants();
+            const response = await fetch(`http://127.0.0.1:8000/${endpoint}/`);
+            const data = await response.json();
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = "";
+            data.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${restaurantMap[item.id]}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>${item.price}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container mt-5">
+        <h2>Menu</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr><th>ID</th><th>Restaurant</th><th>Name</th><th>Description</th><th>Price</th></tr>
+            </thead>
+            <tbody id="menu-table"></tbody>
+        </table>
+    </div>
+
+    <script>
+        fetchData('menu_items', 'menu-table');
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

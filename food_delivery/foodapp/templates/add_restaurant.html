@@ -1,0 +1,262 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Restaurant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            background:linear-gradient(to right,rgb(237, 136, 136),rgb(255, 130, 255));
+        }
+    </style>
+    <script>
+        async function addRestaurantItem(event) {
+            event.preventDefault(); // Prevent form reload
+
+            const restaurantName = document.getElementById("restaurant_name").value;
+            const address = document.getElementById("address").value;
+            const contact_number = document.getElementById("Contact_number").value;
+           
+            const response = await fetch("http://127.0.0.1:8000/restaurants/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: restaurantName,
+                    address: address,
+                    contact_number: contact_number,
+                   
+                }),
+            });
+
+            const responseData = await response.json(); // Read response body
+
+    if (response.ok) {
+        alert("Restaurant added successfully!");
+        fetchData("restaurants", "restaurants-table");
+        document.getElementById("restaurantForm").reset();
+    } else {
+        console.error("Error:", responseData);
+        alert("Failed to add restaurant: " + JSON.stringify(responseData));
+    }
+        }
+    </script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h2 class="mt-5">Add Restaurant</h2>
+    <form id="menuForm" onsubmit="addRestaurantItem(event)">
+        <div class="mb-3">
+            <label for="restaurant_name" class="form-label">Restaurant Name</label>
+            <input type="text" class="form-control" id="restaurant_name" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="Contact_number" class="form-label">Contact number</label>
+            <input type="number" class="form-control" id="Contact_number" step="0.01" required>
+        </div>
+       
+        <button type="submit" class="btn btn-primary">Add Item</button>
+    </form>
+</div>
+
+
+
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Restaurant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, rgb(237, 136, 136), rgb(255, 130, 255));
+            min-height: 100vh;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+        
+        .card-header {
+            background-color: #6c5ce7;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #e1e1e1;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.25);
+            border-color: #6c5ce7;
+        }
+        
+        .btn-primary {
+            background-color: #6c5ce7;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5b4dcf;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+        
+        .icon-input {
+            position: relative;
+        }
+        
+        .icon-input i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: #6c5ce7;
+        }
+        
+        .icon-input input, .icon-input textarea {
+            padding-left: 45px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+        }
+    </style>
+    <script>
+        async function addRestaurantItem(event) {
+            event.preventDefault(); // Prevent form reload
+
+            const restaurantName = document.getElementById("restaurant_name").value;
+            const address = document.getElementById("address").value;
+            const contact_number = document.getElementById("Contact_number").value;
+           
+            const response = await fetch("http://127.0.0.1:8000/restaurants/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: restaurantName,
+                    address: address,
+                    contact_number: contact_number,
+                   
+                }),
+            });
+
+            const responseData = await response.json(); // Read response body
+
+            if (response.ok) {
+                showToast("Restaurant added successfully!", "success");
+                fetchData("restaurants", "restaurants-table");
+                document.getElementById("restaurantForm").reset();
+            } else {
+                console.error("Error:", responseData);
+                showToast("Failed to add restaurant: " + JSON.stringify(responseData), "error");
+            }
+        }
+        
+        function showToast(message, type) {
+            const toastContainer = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', function () {
+                toastContainer.removeChild(toast);
+            });
+        }
+    </script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="m-0"><i class="fas fa-utensils me-2"></i>Add New Restaurant</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="restaurantForm" onsubmit="addRestaurantItem(event)">
+                            <div class="mb-4">
+                                <label for="restaurant_name" class="form-label">Restaurant Name</label>
+                                <div class="icon-input">
+                                    <i class="fas fa-store"></i>
+                                    <input type="text" class="form-control" id="restaurant_name" placeholder="Enter restaurant name" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="address" class="form-label">Address</label>
+                                <div class="icon-input">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <textarea class="form-control" id="address" rows="3" placeholder="Enter full address" required></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="Contact_number" class="form-label">Contact Number</label>
+                                <div class="icon-input">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" class="form-control" id="Contact_number" placeholder="Enter contact number" required>
+                                </div>
+                            </div>
+                           
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus-circle me-2"></i>Add Restaurant
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast container for notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11" id="toast-container"></div>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

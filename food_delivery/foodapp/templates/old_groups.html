@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            background:linear-gradient(to right,rgb(237, 136, 136),rgb(255, 130, 255));
+        }
+    </style>
+    <script>
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        async function fetchGroups() {
+            const response = await fetch("http://127.0.0.1:8000/groups/");
+            const groups = await response.json();
+            
+            const groupList = document.getElementById("group-list");
+            groupList.innerHTML = "";
+
+            groups.forEach(group => {
+                const li = document.createElement("li");
+                li.textContent = group.name;
+                li.style.display = "inline-block";
+                const button=document.createElement("button");
+                button.textContent="Add User";
+                button.className="btn btn-primary btn-sm";
+                button.style.display = "inline-block";
+                button.onclick=async function(){
+                    const username = prompt("Enter username:");
+                    const groupname=group.name;
+                    const response = await fetch("http://127.0.0.1:8000/add_user_group/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken") 
+                        },
+                        body: JSON.stringify({ username: username,groupname:groupname })
+                    });
+                    if (response.ok) {
+                        alert("User added to group successfully!");
+                    } else {
+                        alert("Error adding user to group.");
+                    }
+                }
+                groupList.append(li,button);
+                groupList.appendChild(document.createElement("br"));
+            });
+        }
+
+
+        async function addGroup() {
+            const groupName = document.getElementById("group-name").value;
+
+            if (!groupName.trim()) {
+                alert("Group name cannot be empty!");
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:8000/groups/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken") 
+                },
+                body: JSON.stringify({ name: groupName })
+            });
+
+            if (response.ok) {
+                alert("Group added successfully!");
+                document.getElementById("group-name").value = ""; 
+                fetchGroups(); 
+            } else {
+                alert("Error adding group.");
+            }
+        }
+
+
+        document.addEventListener("DOMContentLoaded", fetchGroups);
+    </script>
+</head>
+<body>
+    {%include 'navbar.html'%}
+    <h1 class="text-center">Groups Management</h1>
+
+    <h2 class="text-center">Existing Groups</h2>
+    <ol id="group-list" class="container border bg-light p-3 m-3"></ol>
+    <div class="container mt-6">
+    <h2 class="container text-center mt-6">Add New Group</h2>
+    <form>
+    <label>Group Name</label>
+    <input type="text" id="group-name" class="form-control" placeholder="Enter group name">
+    <div class="text-center">
+    <button onclick="addGroup()" class="btn btn-primary btn-sm">Add Group</button>
+    </div>
+    </form>
+</div>
+</body>
+</html>
